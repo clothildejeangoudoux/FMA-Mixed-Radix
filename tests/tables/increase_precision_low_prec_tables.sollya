@@ -1,0 +1,56 @@
+write("#ifndef INCREASE_PRECISION_LOW_PREC_TABLES_H\n");
+write("#define INCREASE_PRECISION_LOW_PREC_TABLES_H\n\n");
+
+write("#include <stdint.h>\n\n");
+
+prec = 5000!;
+
+increase_precision_low_prec_n_min = -1130;
+increase_precision_low_prec_n_max = 969;
+increase_precision_low_prec_p_min = -421;
+increase_precision_low_prec_p_max = 385;
+increase_precision_low_prec_t_min = 2^53;
+increase_precision_low_prec_t_max = 2^54-1;
+
+increase_precision_low_prec_lambda_min = -2215;
+increase_precision_low_prec_lambda_max = 1984;
+increase_precision_low_prec_mu_min = -842;
+increase_precision_low_prec_mu_max = 770;
+increase_precision_low_prec_omega_min = 2^63;
+increase_precision_low_prec_omega_max = 2^64-1;
+
+write("#define INCREASE_PRECISION_LOW_PREC_N_MIN ",increase_precision_low_prec_n_min,"\n");
+write("#define INCREASE_PRECISION_LOW_PREC_N_MAX ",increase_precision_low_prec_n_max,"\n\n");
+write("#define INCREASE_PRECISION_LOW_PREC_P_MIN ",increase_precision_low_prec_p_min,"\n");
+write("#define INCREASE_PRECISION_LOW_PREC_P_MAX ",increase_precision_low_prec_p_max,"\n\n");
+write("#define INCREASE_PRECISION_LOW_PREC_T_MIN ",increase_precision_low_prec_t_min,"\n");
+write("#define INCREASE_PRECISION_LOW_PREC_T_MAX ",increase_precision_low_prec_t_max,"\n\n");
+
+write("#define INCREASE_PRECISION_LOW_PREC_LAMBDA_MIN ",increase_precision_low_prec_lambda_min,"\n");
+write("#define INCREASE_PRECISION_LOW_PREC_LAMBDA_MAX ",increase_precision_low_prec_lambda_max,"\n\n");
+write("#define INCREASE_PRECISION_LOW_PREC_MU_MIN ",increase_precision_low_prec_mu_min,"\n");
+write("#define INCREASE_PRECISION_LOW_PREC_MU_MAX ",increase_precision_low_prec_mu_max,"\n\n");
+write("#define INCREASE_PRECISION_LOW_PREC_OMEGA_MIN ",increase_precision_low_prec_omega_min,"\n");
+write("#define INCREASE_PRECISION_LOW_PREC_OMEGA_MAX ",increase_precision_low_prec_omega_max,"\n\n");
+
+
+write("static const int32_t __mixed_fma_increase_precision_low_prec_tbl_lambda[] = {\n");
+for n from increase_precision_low_prec_n_min to increase_precision_low_prec_n_max do {
+    lambda = n - 9;      
+    write("     MIXED_FMA_INT32_CONST(",lambda,")");
+    if (n < increase_precision_low_prec_n_max) then write(",");
+    write("\n");
+};
+write("};\n\n");
+
+write("static const uint64_t __mixed_fma_increase_precision_low_prec_tbl_omega[] = {\n");
+for t from increase_precision_low_prec_t_min to increase_precision_low_prec_t_max do {
+    omega = t * 2^9;
+    write("     MIXED_FMA_UINT64_CONST(",omega,")");
+    if (t < increase_precision_low_prec_t_max) then write(",");
+    write("\n");
+    t = t+2^50-1;
+  };
+write("};\n\n");
+
+write("#endif /* ifdef INCREASE_PRECISION_LOW_PREC_TABLES_H*/\n");

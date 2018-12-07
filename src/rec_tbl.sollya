@@ -1,0 +1,29 @@
+write("#ifndef FMA_REC_TBL_H\n");
+write("#define FMA_REC_TBL_H\n\n");
+
+write("#include <fma_types.h>\n\n");
+
+rationalmode = on!;
+showmessagenumbers = on!;
+prec = 5000!;
+
+tbl_size = 29;
+k_max = 786;
+
+write("static const __mixed_fma_rec_tbl_t __mixed_fma_rec_tbl5[] = {\n");
+for k from 0 to k_max do {
+    write("    {{\n");
+    tt = 5^k;
+    for i from 0 to tbl_size-1 do {
+	t = div(mod(tt,2^(64 * (i + 1))), 2^(64 * i));
+	write("        MIXED_FMA_UINT64_CONST(",t,")");
+	if (i < tbl_size) then write(",");
+	write("\n");
+      };
+    write("    }}");
+    if (k < k_max) then write(",");
+    write("\n");
+  };
+write("};\n\n");
+
+write("#endif /* ifdef FMA_REC_TBL_H*/\n");

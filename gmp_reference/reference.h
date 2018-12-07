@@ -1,0 +1,28 @@
+#ifndef REFERENCE_H
+#define REFERENCE_H
+
+#ifndef __STDC_WANT_DEC_FP__
+#define __STDC_WANT_DEC_FP__ 1
+#endif
+#include <math.h>
+
+typedef double        __ref_binary64_t;
+typedef _Decimal64    __ref_decimal64_t;
+
+__ref_binary64_t ref_fma_binary64_binary64_binary64_decimal64(__ref_binary64_t, __ref_binary64_t, __ref_decimal64_t);
+__ref_binary64_t ref_fma_binary64_binary64_decimal64_binary64(__ref_binary64_t, __ref_decimal64_t, __ref_binary64_t);
+__ref_binary64_t ref_fma_binary64_binary64_decimal64_decimal64(__ref_binary64_t, __ref_decimal64_t, __ref_decimal64_t);
+__ref_binary64_t ref_fma_binary64_decimal64_binary64_binary64(__ref_decimal64_t, __ref_binary64_t, __ref_binary64_t);
+__ref_binary64_t ref_fma_binary64_decimal64_binary64_decimal64(__ref_decimal64_t, __ref_binary64_t, __ref_decimal64_t);
+__ref_binary64_t ref_fma_binary64_decimal64_decimal64_binary64(__ref_decimal64_t, __ref_decimal64_t, __ref_binary64_t);
+__ref_binary64_t ref_fma_binary64_decimal64_decimal64_decimal64(__ref_decimal64_t, __ref_decimal64_t, __ref_decimal64_t);
+
+__ref_decimal64_t ref_fma_decimal64_binary64_binary64_binary64(__ref_binary64_t, __ref_binary64_t, __ref_binary64_t);
+__ref_decimal64_t ref_fma_decimal64_binary64_binary64_decimal64(__ref_binary64_t, __ref_binary64_t, __ref_decimal64_t);
+__ref_decimal64_t ref_fma_decimal64_binary64_decimal64_binary64(__ref_binary64_t, __ref_decimal64_t, __ref_binary64_t);
+__ref_decimal64_t ref_fma_decimal64_binary64_decimal64_decimal64(__ref_binary64_t, __ref_decimal64_t, __ref_decimal64_t);
+__ref_decimal64_t ref_fma_decimal64_decimal64_binary64_binary64(__ref_decimal64_t, __ref_binary64_t, __ref_binary64_t);
+__ref_decimal64_t ref_fma_decimal64_decimal64_binary64_decimal64(__ref_decimal64_t, __ref_binary64_t, __ref_decimal64_t);
+__ref_decimal64_t ref_fma_decimal64_decimal64_decimal64_binary64(__ref_decimal64_t, __ref_decimal64_t, __ref_binary64_t);
+
+#endif

@@ -1,0 +1,90 @@
+roundingwarnings=off!;
+rationalmode = on!;
+
+FT_min = -1131;
+FT_max = 970;
+FF_min = -415;
+FF_max = 370;
+
+tmp_max = 2^2061.61;
+
+N_min = -1130;
+N_max = 969;
+P_min = -421;
+P_max = 385;
+
+t_min = 2^54;
+t_max = 2^55 - 1;
+
+N_before = N_min;
+P_before = P_min;
+N_new_min = -5000;
+
+while(N_new_min==-5000) do {
+    P_after = floor(log10(2^(-6)*2^(FT_min-N_before)/log10(5))+FF_min);
+    N_after = floor(log2(2^(-6)*2^(FT_min-P_after))+FF_min);
+    if ((N_before == N_after) && (P_before == P_after)) then {
+      N_new_min = N_before;
+      P_new_min = P_before;
+    };
+    N_before = N_after;
+    P_before = P_after;
+  };
+write("N new min = ", N_new_min," and P new min = ", P_new_min,"\n");
+
+N_before = N_max;
+P_before = P_max;
+N_new_max = 5000;
+
+while(N_new_max==5000) do {
+    P_after = floor(log10(2^(180)*2^(FT_max-N_before)/log10(5))+FF_max);
+    N_after = floor(log2(2^(180)*2^(FT_max-P_after))+FF_max);
+    if ((N_before == N_after) && (P_before == P_after)) then {
+      N_new_max = N_before;
+      P_new_max = P_before;
+      };
+    N_before = N_after;
+    P_before = P_after;
+  };
+write("N new maximum = ", N_new_max," and P new maximum = ", P_new_max,"\n");
+
+
+L_min = -2261;
+L_max = 1938;
+M_min = -842;
+M_max = 770;
+
+s_min = 2^109;
+s_max = 2^110 - 1;
+
+L_before = L_min;
+M_before = M_min;
+L_new_min = -5000;
+
+while(L_new_min==-5000) do {
+    M_after = floor(log10(2^(-61)*2^(FT_min-L_before)/log10(5))+FF_min);
+    L_after = floor(log2(2^(-61)*2^(FT_min-M_after))+FF_min);
+    if ((L_before == L_after) && (M_before == M_after)) then {
+      L_new_min = L_before;
+      M_new_min = M_before;
+    };
+    L_before = L_after;
+    M_before = M_after;
+  };
+write("L new min = ", L_new_min," and M new min = ", M_new_min,"\n");
+
+L_before = L_max;
+M_before = M_max;
+L_new_max = 5000;
+
+while(L_new_max==5000) do {
+    M_after = floor(log10(2^(119)*2^(FT_max-L_before)/log10(5))+FF_max);
+    L_after = floor(log2(2^(119)*2^(FT_max-M_after))+FF_max);
+    if ((L_before == L_after) && (M_before == M_after)) then {
+      L_new_max = L_before;
+      M_new_max = M_before;
+    };
+    L_before = L_after;
+    M_before = M_after;
+  };
+write("L new maximum = ", L_new_max," and M new maximum = ", M_new_max,"\n");

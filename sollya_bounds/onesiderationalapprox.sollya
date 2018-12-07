@@ -1,0 +1,261 @@
+
+debugMessages = false;
+
+procedure leftApprox(c, Nx, Ny) {
+	  var p1, p2, q1, q2, determinantright, xboundright, yboundright; 
+	  var boundright, kright, determinantleft, yboundleft, xboundleft;
+	  var boundleft, kleft, oldrationalmode, frac;
+
+	  oldrationalmode = rationalmode;
+	  rationalmode = on!;
+	  
+	  iteration = 0;
+
+	  p1 = ceil(c) - 1; q1 = 1; p2 = ceil(c); q2 = 1;
+	  while ((p1 + p2 <= Nx) && (q1 + q2 <= Ny)) do {
+
+	  	determinantright = p2 - c * q2;
+		xboundright = floor((Nx - p1) / p2);
+		yboundright = floor((Ny - q1) / q2);
+		boundright = min(xboundright, yboundright);
+
+		if (determinantright == 0) then {
+		   kright = boundright;
+		} else {
+		   kright = min(boundright, ceil((c * q1 - p1) / determinantright) - 1);
+		};
+		determinantleft = q1 * c - p1;
+		yboundleft = floor((Ny - q2) / q1);
+		if (p1 != 0) then {
+		   xboundleft = floor((Nx - p2) / p1);
+		} else {
+		   xboundleft = yboundleft;
+		};
+	  	boundleft = min(xboundleft, yboundleft);
+	
+		if (determinantleft == 0) then {
+		   kleft = boundleft;
+		} else {		
+		   kleft = min(boundleft, floor((p2 - q2 * c) / determinantleft));
+		};
+
+		if (kleft > 0) then {
+		   p2 = kleft * p1 + p2;
+		   q2 = kleft * q1 + q2;
+		} else {
+		   p1 = p1 + kright * p2;
+		   q1 = q1 + kright * q2;
+		}; 
+		iteration = iteration + 1;
+	  };
+
+	  frac = simplifysafe(p1/q1);
+
+	  rationalmode = oldrationalmode!;
+
+	  return { .p = p1, .q = q1, .frac = frac };
+};
+
+
+procedure rightApprox(c, Nx, Ny) {
+	  var p1, p2, q1, q2, determinantright, xboundright, yboundright; 
+	  var boundright, kright, determinantleft, yboundleft, xboundleft;
+	  var boundleft, kleft, oldrationalmode, frac;
+
+	  oldrationalmode = rationalmode;
+	  rationalmode = on!;
+
+	  p1 = floor(c); q1 = 1; p2 = floor(c) + 1; q2 = 1;
+	  iteration = 0;
+	  while ((p1 + p2 <= Nx) && (q1 + q2 <= Ny)) do {
+	  	determinantright = p2 - c * q2;
+		xboundright = floor((Nx - p1) / p2);
+		yboundright = floor((Ny - q1) / q2);
+		boundright = min(xboundright, yboundright);
+		if (determinantright == 0) then {
+		   kright = boundright;
+		} else {
+		   kright = min(boundright, floor((c * q1 - p1) / determinantright));
+		};
+		determinantleft = q1 * c - p1;
+		yboundleft = floor((Ny - q2) / q1);
+		if (p1 != 0) then {
+		   xboundleft = floor((Nx - p2) / p1);
+		} else {
+		   xboundleft = yboundleft;
+		};
+	  	boundleft = min(xboundleft, yboundleft);
+		if (determinantleft == 0) then {
+		   kleft = boundleft;
+		} else {
+		   kleft = min(boundleft, ceil((p2 - q2 * c) / determinantleft) - 1);
+		};
+		if (kleft > 0) then {
+		   p2 = kleft * p1 + p2;
+		   q2 = kleft * q1 + q2;
+		} else {
+		   p1 = p1 + kright * p2;
+		   q1 = q1 + kright * q2;
+		};
+		iteration = iteration +1;
+	  };
+	  frac = simplifysafe(p2/q2);
+
+	  rationalmode = oldrationalmode!;
+
+	  return { .p = p2, .q = q2, .frac = frac };
+};
+
+procedure leftApproxMinMax(c, Mx, Nx, My, Ny) {
+	  var oldrationalmode;
+	  var res, rapprox, p, q, iMin, iMax, found, t, i;
+
+	  oldrationalmode = rationalmode;
+	  rationalmode = on!;
+
+	  if ((Mx > Nx) || (My > Ny)) then {
+	     if (debugMessages) then "leftApprox gives an empty list; lower bounds are larger than upper";
+	     res = [||];
+	  } else {
+	     if (Mx == Nx) then {
+	     	 p = Mx;
+		 q = max(My, min(Ny, ceil(p/c)));
+		 if (p/q < c) then {
+		    res = [| { .p = p, .q = q, .frac = p / q } |];
+                 } else {
+		    if (debugMessages) then "leftApprox gives an empty list; Mx == Nx, p/q >= c";
+		    res = [||];
+		 };
+	     } else {
+	       if (My == Ny) then {
+	     	 p = max(Mx, min(Nx, floor(c * q)));
+		 q = My;
+		 if (p/q < c) then {
+		    res = [| { .p = p, .q = q, .frac = p / q } |];
+                 } else {
+		    if (debugMessages) then "leftApprox gives an empty list; My == Ny, p/q >= c";
+		    res = [||];
+		 };
+	       } else {
+	       	  if (!((c * Ny >= Mx) && (c * My <= Nx))) then {
+                    if (Nx/My < c) then {
+	     	      p = Nx;
+		      q = My;
+		      res = [| { .p = p, .q = q, .frac = p / q } |];		      
+		    } else {
+		      if (debugMessages) then "leftApprox gives an empty list; Nx/My >= c";
+		      res = [||];
+		    };
+		  } else {    
+	              res = [||];
+	              found = false;
+	              t = c;
+	              while (!found) do {
+	                  rapprox = leftApprox(t, Nx, Ny);
+	                  p = rapprox.p;
+	                  q = rapprox.q;
+		 
+		          iMin = max(ceil(Mx / p), ceil(My / q), 1);
+		          iMax = min(floor(Nx / p), floor(Ny / q));
+		          if (iMin <= iMax) then {
+		              found = true;
+		              for i from iMin to iMax do {
+		    	          res = { .p = i * p, .q = i * q, .frac = p / q } .: res;
+		              };
+		          } else {
+		            t = p / q;
+		          };
+	              };
+                  };
+	       };
+	     };
+	  };
+	  
+	  rationalmode = oldrationalmode!;
+	  return res;
+};
+
+
+procedure rightApproxMinMax(c, Mx, Nx, My, Ny) {
+	  var oldrationalmode;
+	  var res, rapprox, p, q, iMin, iMax, found, t, i;
+
+	  oldrationalmode = rationalmode;
+	  rationalmode = on!;
+
+	  if ((Mx > Nx) || (My > Ny)) then {
+	     if (debugMessages) then "rightApprox gives an empty list; lower bounds are larger than upper";
+	     res = [||];
+	  } else {
+	     if (Mx == Nx) then {
+	     	 p = Mx;
+		 q = max(My, min(Ny, floor(p/c)));
+		 if (p/q > c) then {
+		    res = [| { .p = p, .q = q, .frac = p / q } |];
+                 } else {
+		    if (debugMessages) then "rightApprox gives an empty list; p/q <= c";
+		    res = [||];
+		 };
+	     } else {
+	       if (My == Ny) then {
+	     	 p = max(Mx, min(Nx, ceil(c * q)));
+		 q = My;
+		 if (p/q > c) then {
+		    res = [| { .p = p, .q = q, .frac = p / q } |];
+                 } else {
+		    if (debugMessages) then "rightApprox gives an empty list; My == Ny, p/q <= c";
+		    res = [||];
+		 };
+	       } else {
+	       	  if (!((c * Ny >= Mx) && (c * My <= Nx))) then {
+		    if (c < Mx/Ny) then {
+	     	      p = Mx;
+		      q = Ny;
+		      res = [| { .p = p, .q = q, .frac = p / q } |];		      
+		    } else {
+  		      if (debugMessages) then "rightApprox gives an empty list; ((c * Ny >= Mx) && (c * My <= Nx)); c >= Mx / Ny";
+		      res = [||];
+		    };
+		  } else {
+	              res = [||];
+	              found = false;
+	              t = c;
+	              while (!found) do {
+	                  rapprox = rightApprox(t, Nx, Ny);
+	                  p = rapprox.p;
+	                  q = rapprox.q;
+		 
+		          iMin = max(ceil(Mx / p), ceil(My / q), 1);
+		          iMax = min(floor(Nx / p), floor(Ny / q));
+
+		          if (iMin <= iMax) then {
+		              found = true;
+		              for i from iMin to iMax do {
+		    	          res = { .p = i * p, .q = i * q, .frac = p / q } .: res;
+		              };
+		          } else {
+		            t = p / q;
+		          };
+	              };
+                  };
+	       };
+	     };
+	  };  
+	  rationalmode = oldrationalmode!;
+	  return res;
+};
+
+procedure sideApproxMinMax(c, Mx, Nx, My, Ny) {
+	  var res;
+	  var cc, oldrationalmode;
+
+	  oldrationalmode = rationalmode;
+	  rationalmode = on!;
+	  cc = simplify(c);
+	  rationalmode = oldrationalmode!;
+
+	  res = leftApproxMinMax(cc, Mx, Nx, My, Ny) @ rightApproxMinMax(cc, Mx, Nx, My, Ny);
+	  
+	  return res;
+};
+

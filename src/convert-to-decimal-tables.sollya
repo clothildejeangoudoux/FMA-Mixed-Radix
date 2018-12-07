@@ -1,0 +1,89 @@
+write("#ifndef FMA_CONVERT_TO_DECIMAL_TBL_H\n");
+write("#define FMA_CONVERT_TO_DECIMAL_TBL_H\n\n");
+
+/* write("#include <stdint.h>\n\n"); */
+
+rationalmode = on!;
+showmessagenumbers = on!;
+suppressmessage(159);
+prec = 500!;
+
+gMin = 2^63;
+gMax = 2^64 - 1;
+
+gstarMin = infty;
+gstarMax = -infty;
+
+Cmin=-3097;
+Cmax=3836;
+
+h_min=-929;
+h_max=1159;
+
+write("#define __MIXED_FMA_CMIN ((__mixed_fma_int32_t) ",Cmin,")\n");
+write("#define __MIXED_FMA_HMIN ((__mixed_fma_int32_t) ",h_min,")\n\n");
+
+
+gstar = ceil(10^(1 + floor((x + 63) * log10(2)) - x * log10(2))) - 1;
+
+write("static const __mixed_fma_uint64_t __mixed_fma_conversionToDecimalTblGstar[] = {\n");
+for C from Cmin to Cmax do {
+    tmp2 = evaluate(gstar, [C]);
+    if (inf(tmp2) == sup(tmp2)) then {
+       gstarC = inf(tmp2);
+    } else {
+       gstarC := nearestint(mid(tmp2));
+    };
+    
+    muMin = floor(C * log10(2) + log10(gMin) - floor((C + 63) * log10(2)));
+    muMax = floor(C * log10(2) + log10(gMax) - floor((C + 63) * log10(2)));
+
+    if (muMax - muMin == 0) then {
+       	  gstarC = gMax;
+    };
+
+    gstarMin = min(gstarMin, gstarC);
+    gstarMax = max(gstarMax, gstarC);
+
+    write("     MIXED_FMA_UINT64_CONST(",gstarC,")");
+    if (C < Cmax) then write(",");
+    write("\n");
+};
+write("};\n\n");
+
+TT = 10^(-x)*2^(floor(x*log2(10))+127);
+T = floor(TT);
+exact_min=h_max;
+exact_max=h_min;
+for j from 0 to 1 do {
+    write("static const __mixed_fma_uint64_t __mixed_fma_conversionToDecimalTblT",j,"[] = {\n");
+    for h from h_min to h_max do {
+	tt_ = TT(h);
+	tt = T(h);
+        ttt := tt;
+	if (tt_ == tt) then {
+	    if (h<exact_min) then {
+		exact_min=h;
+	      };
+	    if (h>exact_max) then {
+		exact_max=h;
+	      };
+	  };
+	if (ttt != tt) then {
+	write("Argl! tt = ", tt, ", ttt = ", ttt,"\n");
+	dieonerrormode = on!;
+	for i from NaN to NaN do 1 + "Coucou Gstar";
+	  };      
+	t = div(mod(ttt,2^(64 * (j + 1))), 2^(64 * j));
+	write("     MIXED_FMA_UINT64_CONST(",t,")");
+	
+	if (h < h_max) then write(",");
+	write("\n");
+      };
+    write("};\n\n");
+};
+
+write("#define __MIXED_FMA_CONVERT_TO_DECIMAL_TBL_EXACT_MIN ((__mixed_fma_int32_t) ",exact_min,")\n");
+write("#define __MIXED_FMA_CONVERT_TO_DECIMAL_TBL_EXACT_MAX ((__mixed_fma_int32_t) ",exact_max,")\n\n");
+
+write("#endif /* ifdef FMA_CONVERT_TO_DECIMAL_TBL_H*/\n");

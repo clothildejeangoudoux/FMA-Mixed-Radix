@@ -1,0 +1,32 @@
+write("#ifndef FLOOR_TIMES_LOG2_TABLES_H\n");
+write("#define FLOOR_TIMES_LOG2_TABLES_H\n\n");
+
+write("#include <stdint.h>\n\n");
+
+prec = 5000!;
+
+floor_times_log2_x_min = -5000;
+floor_times_log2_x_max = 5000;
+
+write("#define FLOOR_TIMES_LOG2_X_MIN ",floor_times_log2_x_min,"\n");
+write("#define FLOOR_TIMES_LOG2_X_MAX ",floor_times_log2_x_max,"\n\n");
+
+write("static const uint32_t __mixed_fma_floor_times_log2_of_5_Tbl[] = {\n");
+for x from floor_times_log2_x_min to floor_times_log2_x_max do {
+    t = floor(x*log2(5));
+    write("     MIXED_FMA_INT32_CONST(",t,")");
+    if (x < floor_times_log2_x_max) then write(",");
+    write("\n");
+  };
+write("};\n\n");
+
+write("static const uint32_t __mixed_fma_floor_times_log2_of_10_Tbl[] = {\n");
+for x from floor_times_log2_x_min to floor_times_log2_x_max do {
+    t = floor(x*log2(10));
+    write("     MIXED_FMA_INT32_CONST(",t,")");
+    if (x < floor_times_log2_x_max) then write(",");
+    write("\n");
+  };
+write("};\n\n");
+
+write("#endif /* ifdef FLOOR_TIMES_LOG2_TABLES_H*/\n");

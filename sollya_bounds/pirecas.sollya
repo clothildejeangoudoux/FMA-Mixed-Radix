@@ -1,0 +1,100 @@
+
+roundingwarnings=off!;
+rationalmode = on!;
+
+execute("onesiderationalapprox.sollya");
+
+sMin = 2^109;
+sMax = 2^110 - 1;
+
+tMin = 2^54;
+tMax = 2^55 - 1;
+
+xMin = -3068;
+xMax = 3230;
+
+yMin = -1191;
+yMax = 1227;
+
+/* On cherche à approcher
+
+   2^X * 5^Y
+
+   avec une fraction s/t avec s borné par sMin et sMax et t borné par tMin et tMax.
+
+   On a X borné par xMin et xMax, y borné par yMin et yMax.
+
+   Avec les bornes pour s et t, on sait que
+
+   sMin/tMax <= s/t <= sMax/tMin.
+
+   Donc pour un Y donné, si on limite la recherche aux approximations où
+   s/t approche 2^X * 5^Y avec au moins 2 bits de précision finale, on a
+
+   s/t = 2^X * 5^Y * (1 + eps)    avec abs(eps) <= 1/4.
+
+   Alors
+
+   2^X * 5^Y = s/t * 1/(1 + eps)
+
+   qui est borné par
+
+   2^X * 5^Y = s/t * 1/(1 + eps) <= sMax/tMin * 1/(1 - 1/4)
+
+   et
+
+   2^X * 5^Y = s/t * 1/(1 + eps) >= sMin/tMax * 1/(1 + 1/4)
+
+   Donc pour un Y donné:
+
+   sMin/tMax * 1/(1 + 1/4) * 5^-Y <= 2^X <= sMax/tMin * 1/(1 - 1/4) * 5^-Y
+
+   ce qui donne
+
+   log2(sMin/tMax * 1/(1 + 1/4) * 5^-Y) <= X <= log2(sMax/tMin * 1/(1 - 1/4) * 5^-Y)
+
+   et finalement même (puisque X est entier)
+
+   ceil(log2(sMin/tMax * 1/(1 + 1/4) * 5^-Y)) <= X <= floor(log2(sMax/tMin * 1/(1 - 1/4) * 5^-Y))
+
+*/
+
+pireEps = 1/4;
+
+piresCas = [||];
+for Y from yMin to yMax do {
+        xMinY = max(xMin, inf([ceil(log2(sMin/tMax * 1/(1 + 1/4) * 5^-Y))]));
+	if (xMinY != nearestint(xMinY)) then {
+	   xMinY = max(xMin,nearestint(xMinY) - 2);
+	};
+        xMaxY = min(xMax, sup([floor(log2(sMax/tMin * 1/(1 - 1/4) * 5^-Y))]));
+	if (xMaxY != nearestint(xMaxY)) then {
+	   xMaxY = min(xMax,nearestint(xMaxY) + 2);
+	};
+
+        for X from xMinY to xMaxY do {
+
+    	    "Handling case X = ", X, ", Y = ", Y;
+
+    	    c = 2^X * 5^Y;
+
+	    pcs = sideApproxMinMax(c, sMin, sMax, tMin, tMax);
+
+	    for pc in pcs do {
+	    	mpc = { .X = X, .Y = Y, .c = c, .s = pc.p, .t = pc.q };
+		epsmpc = (mpc.s/mpc.t)/c - 1;
+		if (abs(epsmpc) < abs(pireEps)) then {
+		   pireEps = epsmpc;
+		   pireCasDeTous = mpc;
+		};
+		
+	        piresCas = mpc .: piresCas;
+	    };
+        };
+};
+
+npc = length(piresCas);
+
+"Done: ", npc, " cancellation cases found.";
+"The worst case is ", pireCasDeTous, " with eps = ", pireEps, " = +/- 2^(", log2(abs(pireEps)), ")";
+

@@ -1,0 +1,157 @@
+
+roundingwarnings=off!;
+rationalmode = on!;
+
+execute("onesiderationalapprox.sollya");
+
+write("#ifndef CHECK_RATIO_TABLES_H\n");
+write("#define CHECK_RATIO_TABLES_H\n\n");
+
+write("#include <stdint.h>\n\n");
+
+sMin = 2^109;
+sMax = 2^110 - 1;
+
+tMin = 2^54;
+tMax = 2^55 - 1;
+
+xMin = -30;
+xMax = 32;
+
+yMin = -11;
+yMax = 12;
+
+/* xMin = -3068; */
+/* xMax = 3230; */
+
+/* yMin = -1191; */
+/* yMax = 1227; */
+
+
+/* On cherche à approcher
+
+   2^X * 5^Y
+
+   avec une fraction s/t avec s borné par sMin et sMax et t borné par tMin et tMax.
+
+   On a X borné par xMin et xMax, y borné par yMin et yMax.
+
+   Avec les bornes pour s et t, on sait que
+
+   sMin/tMax <= s/t <= sMax/tMin.
+
+   Donc pour un Y donné, si on limite la recherche aux approximations où
+   s/t approche 2^X * 5^Y avec au moins 2 bits de précision finale, on a
+
+   s/t = 2^X * 5^Y * (1 + eps)    avec abs(eps) <= 1/4.
+
+   Alors
+
+   2^X * 5^Y = s/t * 1/(1 + eps)
+
+   qui est borné par
+
+   2^X * 5^Y = s/t * 1/(1 + eps) <= sMax/tMin * 1/(1 - 1/4)
+
+   et
+
+   2^X * 5^Y = s/t * 1/(1 + eps) >= sMin/tMax * 1/(1 + 1/4)
+
+   Donc pour un Y donné:
+
+   sMin/tMax * 1/(1 + 1/4) * 5^-Y <= 2^X <= sMax/tMin * 1/(1 - 1/4) * 5^-Y
+
+   ce qui donne
+
+   log2(sMin/tMax * 1/(1 + 1/4) * 5^-Y) <= X <= log2(sMax/tMin * 1/(1 - 1/4) * 5^-Y)
+
+   et finalement même (puisque X est entier)
+
+   ceil(log2(sMin/tMax * 1/(1 + 1/4) * 5^-Y)) <= X <= floor(log2(sMax/tMin * 1/(1 - 1/4) * 5^-Y))
+
+*/
+
+pireEps = 1/4;
+
+piresCas = [||];
+for Y from yMin to yMax do {
+        xMinY = max(xMin, inf([ceil(log2(sMin/tMax * 1/(1 + 1/4) * 5^-Y))]));
+	if (xMinY != nearestint(xMinY)) then {
+	   xMinY = max(xMin,nearestint(xMinY) - 2);
+	};
+        xMaxY = min(xMax, sup([floor(log2(sMax/tMin * 1/(1 - 1/4) * 5^-Y))]));
+	if (xMaxY != nearestint(xMaxY)) then {
+	   xMaxY = min(xMax,nearestint(xMaxY) + 2);
+	};
+
+        for X from xMinY to xMaxY do {
+
+    	    //"Handling case X = ", X, ", Y = ", Y;
+
+    	    c = 2^X * 5^Y;
+
+	    pcs = sideApproxMinMax(c, sMin, sMax, tMin, tMax);
+
+	    for pc in pcs do {
+	    	mpc = { .X = X, .Y = Y, .c = c, .s = pc.p, .t = pc.q };
+		epsmpc = (mpc.s/mpc.t)/c - 1;
+		if (abs(epsmpc) < abs(pireEps)) then {
+		   pireEps = epsmpc;
+		   pireCasDeTous = mpc;
+		};
+		
+	        piresCas = mpc .: piresCas;
+	    };
+        };
+};
+
+npc = length(piresCas);
+
+write("#define CHECK_RATIO_NB_PIRES_CAS ",npc,"\n");
+
+write("static const __mixed_fma_int32_t check_ratio_x[] = {\n");
+for pc in piresCas do {
+    write("     MIXED_FMA_INT32_CONST(",pc.X,"),\n");
+};
+write("};\n\n");
+
+write("static const __mixed_fma_int32_t check_ratio_y[] = {\n");
+for pc in piresCas do {
+    write("     MIXED_FMA_INT32_CONST(",pc.Y,"),\n");
+};
+write("};\n\n");
+
+write("static const __mixed_fma_uint64_t check_ratio_t[] = {\n");
+for pc in piresCas do {
+    write("     MIXED_FMA_UINT64_CONST(",pc.t,"),\n");
+};
+write("};\n\n");
+
+for i from 0 to 1 do{
+    write("static const __mixed_fma_uint64_t check_ratio_s",i,"[] = {\n");
+    for pc in piresCas do {
+	t = div(mod(pc.s,2^(64 * (i + 1))), 2^(64 * i));
+	write("     MIXED_FMA_UINT64_CONST(",t,"),\n");
+      };
+    write("};\n\n");
+};
+
+
+
+    
+/*     for h from h_min to h_max do { */
+/* 	tt = table3(h); */
+/*         ttt := tt; */
+/* 	if (ttt != tt) then { */
+/* 	write("Argl! tt = ", tt, ", ttt = ", ttt,"\n"); */
+/* 	dieonerrormode = on!; */
+/* 	for i from NaN to NaN do 1 + "Coucou Gstar"; */
+/* 	  };       */
+/* 	t = div(mod(ttt,2^(64 * (j + 1))), 2^(64 * j)); */
+/* 	write("     MIXED_FMA_UINT64_CONST(",t,")"); */
+	
+/* 	if (h < h_max) then write(","); */
+/* 	write("\n"); */
+/*       }; */
+
+write("#endif /* ifdef CHECK_RATIO_TABLES_H*/\n");

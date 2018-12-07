@@ -1,0 +1,49 @@
+write("#ifndef FMA_CONVERT_TO_BINARY_TBL_H\n");
+write("#define FMA_CONVERT_TO_BINARY_TBL_H\n\n");
+
+/* write("#include <stdint.h>\n\n"); */
+
+prec = 5000!;
+
+m_min=-842;
+m_max=770;
+
+write("#define __MIXED_FMA_MMIN ((__mixed_fma_int32_t) ",m_min,")\n\n");
+
+tautau = 5^(x)*2^(255-floor(x*log2(5)));
+tau = floor(tautau);
+
+exact_min=m_max;
+exact_max=m_min;
+
+for j from 0 to 3 do {
+    write("static const __mixed_fma_uint64_t __mixed_fma_conversionToBinaryTbl",j,"[] = {\n");
+    for m from m_min to m_max do {
+	tt_ = tautau(m);
+	tt = tau(m);
+        ttt := tt;
+	if (tt_ == tt) then {
+	    if (m<exact_min) then {
+		exact_min=m;
+	      };
+	    if (m>exact_max) then {
+		exact_max=m;
+	      };
+	  };
+	if (ttt != tt) then {
+	    write("Argl! tt = ", tt, ", ttt = ", ttt,"\n");
+	    dieonerrormode = on!;
+	    for i from NaN to NaN do 1 + "Coucou";
+	  };	
+	t = div(mod(ttt,2^(64 * (j + 1))), 2^(64 * j));
+	write("    MIXED_FMA_UINT64_CONST(",t,")");
+	if (m < m_max) then write(",");
+	write("\n");
+      };
+    write("};\n\n");
+  };
+
+write("#define __MIXED_FMA_CONVERT_TO_BINARY_TBL_EXACT_MIN ((__mixed_fma_int32_t) ",exact_min,")\n\n");
+write("#define __MIXED_FMA_CONVERT_TO_BINARY_TBL_EXACT_MAX ((__mixed_fma_int32_t) ",exact_max,")\n\n");
+
+write("#endif /* ifdef FMA_CONVERT_TO_BINARY_TBL_H*/\n");

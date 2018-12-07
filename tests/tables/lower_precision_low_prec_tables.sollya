@@ -1,0 +1,51 @@
+write("#ifndef LOWER_PRECISION_LOW_PREC_TABLES_H\n");
+write("#define LOWER_PRECISION_LOW_PREC_TABLES_H\n\n");
+
+write("#include <stdint.h>\n\n");
+
+prec = 5000!;
+
+lower_precision_low_prec_l_min = -2261;
+lower_precision_low_prec_l_max = 1938;
+lower_precision_low_prec_m_min = -842;
+lower_precision_low_prec_m_max = 770;
+lower_precision_low_prec_s_min = 2^109;
+lower_precision_low_prec_s_max = 2^110-1;
+
+lower_precision_low_prec_lambda_min = -2215;
+lower_precision_low_prec_lambda_max = 1984;
+lower_precision_low_prec_mu_min = -842;
+lower_precision_low_prec_mu_max = 770;
+lower_precision_low_prec_omega_min = 2^63;
+lower_precision_low_prec_omega_max = 2^64-1;
+
+write("#define LOWER_PRECISION_LOW_PREC_L_MIN ",lower_precision_low_prec_l_min,"\n");
+write("#define LOWER_PRECISION_LOW_PREC_L_MAX ",lower_precision_low_prec_l_max,"\n");
+write("#define LOWER_PRECISION_LOW_PREC_M_MIN ",lower_precision_low_prec_m_min,"\n");
+write("#define LOWER_PRECISION_LOW_PREC_M_MAX ",lower_precision_low_prec_m_max,"\n");
+
+write("#define LOWER_PRECISION_LOW_PREC_LAMBDA_MIN ",lower_precision_low_prec_lambda_min,"\n");
+write("#define LOWER_PRECISION_LOW_PREC_LAMBDA_MAX ",lower_precision_low_prec_lambda_max,"\n");
+write("#define LOWER_PRECISION_LOW_PREC_MU_MIN ",lower_precision_low_prec_mu_min,"\n");
+write("#define LOWER_PRECISION_LOW_PREC_MU_MAX ",lower_precision_low_prec_mu_max,"\n\n");
+
+write("static const int32_t __mixed_fma_lower_precision_low_prec_tbl_lambda[] = {\n");
+for l from lower_precision_low_prec_l_min to lower_precision_low_prec_l_max do {
+    lambda = l + 46;      
+    write("     MIXED_FMA_INT32_CONST(",lambda,")");
+    if (l < lower_precision_low_prec_l_max) then write(",");
+    write("\n");
+};
+write("};\n\n");
+
+write("static const uint64_t __mixed_fma_lower_precision_low_prec_tbl_omega[] = {\n");
+for s from lower_precision_low_prec_s_min to lower_precision_low_prec_s_max do {
+    omega = floor(s*2^(-46));
+    write("     MIXED_FMA_UINT64_CONST(",omega,")");
+    if (s < lower_precision_low_prec_s_max) then write(",");
+    write("\n");
+    s = s+2^105-1;
+  };
+write("};\n\n");
+
+write("#endif /* ifdef LOWER_PRECISION_LOW_PREC_TABLES_H*/\n");
